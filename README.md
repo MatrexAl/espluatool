@@ -1,4 +1,4 @@
-# espluatool
+# ESPLuaTool
 Программа для заливки LUA скриптов NodeMCU (https://en.wikipedia.org/wiki/NodeMCU) в микроконтроллер ESP8622 из командной строки. 
 
 Разработана на FreePascal, IDE Lazarus (https://www.lazarus-ide.org/index.php?page=downloads).
