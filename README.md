@@ -9,6 +9,8 @@
 
 Для подключения к notepad++ воспользуйтесь следующей инструкцией:
 - скачайте последнюю версию notepad++ (https://notepad-plus-plus.org/download/)
+- скачайте последнюю версию ESPLuaTool (https://github.com/MatrexAl/espluatool/archive/master.zip)
+- распакуйте ESPLuaTool в любую директорию
 
 
 
