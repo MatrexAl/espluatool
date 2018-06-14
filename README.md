@@ -16,7 +16,7 @@
 - для прошивки микроконтроллера: espluatool.exe -p COM6 -b 9600 -w c:\init.lua
 - для прошивки микроконтроллера компиляции и запуска: espluatool.exe -p COM6 -b 9600 -wс c:\init.lua
 
-
+TEST
 
 
 
