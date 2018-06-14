@@ -12,6 +12,9 @@
 - скачайте последнюю версию ESPLuaTool (https://github.com/MatrexAl/espluatool/archive/master.zip)
 - распакуйте ESPLuaTool в любую директорию
 
+Используйте параметры командной строки:
+- для прошивки микроконтроллера: espluatool.exe -p COM6 -b 9600 -w c:\init.lua
+
 
 
 01.07.2018 Головейко Александр, Брест, Беларусь
