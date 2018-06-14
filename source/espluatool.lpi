@@ -23,7 +23,7 @@
     <RunParams>
       <local>
         <FormatVersion Value="1"/>
-        <CommandLineParams Value="-p COM3 -b 9600 -ga c:\"/>
+        <CommandLineParams Value="-p COM3 -b 9600 -wc c:\init.lua"/>
       </local>
     </RunParams>
     <RequiredPackages Count="2">

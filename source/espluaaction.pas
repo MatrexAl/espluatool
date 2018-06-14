@@ -29,6 +29,7 @@ type
     fForm: TForm;
     fESPProperties: tESPLUAProperties;
     fESPLog: tESPLUALog;
+    fNowStr: string;
     function CalcTimeOut(const v_line: string; const v_def: integer): integer;
     procedure ClearFreeLineInReasStr;
     function CutResultLine(const v_script: string): rResult;
@@ -37,12 +38,15 @@ type
     function ExecuteLuaScript(const v_script: TStrings; const v_timeout: longword;
       const v_lab: string): rResult; overload;
     function ExecuteLuaStr(const v_script: string): rResult;
+    function getNowStr: string;
     function isNormalStr(const str: string): boolean;
     procedure ClearResult(var v_res: rResult);
+    function isWriteScript(const v_line: string): boolean;
     function NormalizeStr(const v_str: string): string;
     procedure OnPacket(Sender: TObject; const Str: string);
     function WaitLineEnd(const v_timeout: longword): rResult;
-    function WaitLine(const v_line: string; const v_timeout: longword): rResult;
+    function WaitLine(const v_line: string; const v_timeout: longword;
+      const v_pos: integer = -1): rResult;
     procedure RefreshProgress(const v_size, v_pos: integer; const v_lab: string);
     function getReadStr: string;
     function Open: rResult;
@@ -86,6 +90,9 @@ begin
   if isNormalStr(str) then
   begin
     fReadStr.Lines.Text := fReadStr.Lines.Text + str;
+    fNowStr := str;
+
+   // fReadStr.Lines.SaveToFile('c:\aaa.aa');
   end;
 end;
 
@@ -100,8 +107,13 @@ begin
   Result := fReadStr.Lines.Text;
 end;
 
-function TESPLuaAction.WaitLine(const v_line: string;
-  const v_timeout: longword): rResult;
+function TESPLuaAction.getNowStr: string;
+begin
+  Result := fNowStr;
+end;
+
+function TESPLuaAction.WaitLine(const v_line: string; const v_timeout: longword;
+  const v_pos: integer = -1): rResult;
 var
   d: longword;
 begin
@@ -114,8 +126,17 @@ begin
     application.ProcessMessages;
     delay(10);
     d := d + 10;
-    if pos(AnsiUpperCase(v_line), AnsiUpperCase(getReadStr)) <> 0 then
-      exit;
+
+    case v_pos of
+      -1: if pos(AnsiUpperCase(v_line), AnsiUpperCase(getReadStr)) <> 0 then
+          exit;
+      -2: if pos(AnsiUpperCase(v_line), AnsiUpperCase(getNowStr)) <> 0 then
+          exit;
+      else
+        if pos(AnsiUpperCase(v_line), AnsiUpperCase(getReadStr)) = v_pos then
+          exit;
+    end;
+
   end;
   Result.MSG := 'TIMEOUT';
   Result.RES := 1;
@@ -195,8 +216,7 @@ begin
   // если последняя строка равна > - этого не может быть - уберем эту строку
   if fReadStr.Lines.Count <> 0 then
   begin
-    if
-    trim(freadstr.Lines[freadstr.Lines.Count - 1]) = '>' then
+    if trim(freadstr.Lines[freadstr.Lines.Count - 1]) = '>' then
       freadstr.Lines.Delete(freadstr.Lines.Count - 1);
   end;
 
@@ -223,10 +243,14 @@ end;
 function TESPLuaAction.CalcTimeOut(const v_line: string; const v_def: integer): integer;
 begin
   Result := v_def;
-  if pos('w([==[', v_line) = 1 then
+  if isWriteScript(v_line) then
     Result := fESPProperties.getWriteDelay;
 end;
 
+function TESPLuaAction.isWriteScript(const v_line: string): boolean;
+begin
+  Result := pos('w([==[', v_line) = 1;
+end;
 
 function TESPLuaAction.ExecuteLuaScript(const v_script: TStrings;
   const v_timeout: longword; const v_lab: string): rResult;
@@ -243,7 +267,11 @@ begin
       Result := ExecuteLuaStr(v_script[r] + #13#10);
       if Result.RES = 0 then
       begin
+        // if isWriteScript(v_script[r]) then
+        //   Result := WaitLine('>', fESPProperties.GetWaitLineDelay, -2)
+        // else
         Result := WaitLineEnd(CalcTimeOut(v_script[r], v_timeout));
+
         if Result.RES = 0 then
           CutResultLine(v_script.Text);
       end;
@@ -433,6 +461,7 @@ begin
   ProgressBar := nil;
   ProgressLabel := nil;
   fESPLog := tESPLUALog.Create;
+  fNowStr := '';
 end;
 
 destructor TESPLuaAction.Destroy;
