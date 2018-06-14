@@ -32,8 +32,7 @@ type
     function ParamExists(const v_param: string): boolean;
     procedure RefreshCaption;
     procedure ShowResult(const v_res: rResult);
-    function WriteFileAction(const v_fn: string; v_p: string; v_b: integer;
-      const v_compile: boolean): rResult;
+    function WriteFileAction(const v_fn: string; v_p: string; v_b: integer; const v_compile, v_compare: boolean): rResult;
 
     { private declarations }
   public
@@ -88,8 +87,7 @@ function TForm1.isWrite: boolean;
 var
   i: integer;
 begin
-  Result := ParamExists('-p') and ParamExists('-b') and ParamExists('-w') and
-    trystrtoint(getparam('-b'), i);
+  Result := ParamExists('-p') and ParamExists('-b') and ParamExists('-w') and trystrtoint(getparam('-b'), i);
 end;
 
 
@@ -97,23 +95,21 @@ function TForm1.isWriteCompile: boolean;
 var
   i: integer;
 begin
-  Result := ParamExists('-p') and ParamExists('-b') and ParamExists('-wc') and
-    trystrtoint(getparam('-b'), i);
+  Result := ParamExists('-p') and ParamExists('-b') and ParamExists('-wc') and trystrtoint(getparam('-b'), i);
 end;
 
 function TForm1.isGetAllFileContent: boolean;
 var
   i: integer;
 begin
-  Result := ParamExists('-p') and ParamExists('-b') and ParamExists('-ga') and
-    trystrtoint(getparam('-b'), i);
+  Result := ParamExists('-p') and ParamExists('-b') and ParamExists('-ga') and trystrtoint(getparam('-b'), i);
 end;
 
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
   fESPProperties := tespluaproperties.Create();
-  label2.Caption:='';
+  label2.Caption := '';
   RefreshCaption;
   Timer1.Enabled := True;
 end;
@@ -135,9 +131,13 @@ procedure TForm1.RefreshCaption;
 
 begin
   if isWrite then
+  begin
     Caption := Caption + ' - ' + fESPProperties.getLabWriteFile;
+  end;
   if isWriteCompile then
+  begin
     Caption := Caption + ' - ' + fESPProperties.getLabWriteFileCompile;
+  end;
   if isGetAllFileContent then
     Caption := Caption + ' - ' + fESPProperties.getLabAllFileContent;
 
@@ -146,8 +146,7 @@ end;
 
 
 
-function TForm1.WriteFileAction(const v_fn: string; v_p: string;
-  v_b: integer; const v_compile: boolean): rResult;
+function TForm1.WriteFileAction(const v_fn: string; v_p: string; v_b: integer; const v_compile, v_compare: boolean): rResult;
 var
   t: TStringList;
   espaction: tespluaaction;
@@ -160,9 +159,10 @@ begin
     espaction.ProgressBar := Progressbar1;
     espaction.ProgressLabel := label2;
     if v_compile then
-      Result := espaction.writeFileAndCompile(extractfilename(v_fn), t.Text)
+      Result := espaction.writeFileAndCompile(extractfilename(v_fn), t.Text, v_compare)
     else
-      Result := espaction.WriteFile(extractfilename(v_fn), t.Text);
+      Result := espaction.WriteFile(extractfilename(v_fn), t.Text, v_compare);
+
     FreeAndNil(t);
   end
   else
@@ -201,6 +201,7 @@ var
   r: rResult;
   fn, port: string;
   bt: integer;
+  comp: boolean;
 begin
   Timer1.Enabled := False;
 
@@ -210,7 +211,8 @@ begin
     fn := getparam('-w');
     port := getparam('-p');
     bt := StrToInt(getparam('-b'));
-    r := WriteFileAction(fn, port, bt, False);
+    comp := paramexists('-c');
+    r := WriteFileAction(fn, port, bt, False, comp);
   end
   else
   if isWriteCompile then
@@ -218,7 +220,8 @@ begin
     fn := getparam('-wc');
     port := getparam('-p');
     bt := StrToInt(getparam('-b'));
-    r := WriteFileAction(fn, port, bt, True);
+    comp := paramexists('-c');
+    r := WriteFileAction(fn, port, bt, True, comp);
   end
   else
   if isGetAllFileContent then

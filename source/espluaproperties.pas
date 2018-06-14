@@ -13,6 +13,7 @@ type
 
   TESPLuaProperties = class
   private
+    function getLabCompare: string;
     { private declarations }
   public
     { public declarations }
@@ -55,6 +56,12 @@ end;
 function TESPLuaProperties.getLabFileNotExists: string;
 begin
   Result := 'Файл не существует';
+end;
+
+
+function TESPLuaProperties.getLabCompare: string;
+begin
+  Result := 'Сравниваю';
 end;
 
 function TESPLuaProperties.getLabCompile: string;
