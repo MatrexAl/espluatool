@@ -8,13 +8,17 @@
 Разработано специально для использования совместно с notepad++ в качестве дополнения.
 
 Для подключения к notepad++ воспользуйтесь следующей инструкцией:
-- скачайте последнюю версию notepad++ (https://notepad-plus-plus.org/download/)
-- скачайте последнюю версию ESPLuaTool (https://github.com/MatrexAl/espluatool/archive/master.zip)
-- распакуйте ESPLuaTool в любую директорию
+- Скачайте последнюю версию notepad++ (https://notepad-plus-plus.org/download/).
+- Скачайте дополнение NppExec к notepad++ (https://sourceforge.net/projects/npp-plugins/files/NppExec/).
+- Установите дополнене NppExec, распаковав содержимое архива в папку "plugins" notepad++.
+- Скачайте последнюю версию ESPLuaTool (https://github.com/MatrexAl/espluatool/archive/master.zip).
+- Распакуйте ESPLuaTool в любую директорию.
+- Запустите notepad++, идите в "Плагины-NppExec-Execute" (или нажмите F6).
+- В открывшемся окне введите стоку запуска для прошивки микроконтроллера "d:\Lazarus\!project\espluatool\bin\espluatool.exe -p COM6 -b 9600 -wc $(FULL_CURRENT_PATH)" (без кавычек). Нажмите кнопку "Save..." и введите имя скрипта для сохранения, например "LUA Запись и компиляция". Подтвердите сохранение.
 
 Используйте параметры командной строки:
 - для прошивки микроконтроллера: espluatool.exe -p COM6 -b 9600 -w c:\init.lua
-- для прошивки микроконтроллера компиляции и запуска: espluatool.exe -p COM6 -b 9600 -wс c:\init.lua
+- для прошивки микроконтроллера, компиляции и запуска: espluatool.exe -p COM6 -b 9600 -wс c:\init.lua
 
 
 
