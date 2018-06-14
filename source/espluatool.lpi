@@ -26,7 +26,10 @@
     <RunParams>
       <local>
         <FormatVersion Value="1"/>
+<<<<<<< HEAD
         <CommandLineParams Value="-p COM6 -b 9600 -wc &quot;c:\init.lua&quot;"/>
+=======
+>>>>>>> 0bfc61bca127bbf56f8ce63db5663cd99e9b60d7
       </local>
     </RunParams>
     <RequiredPackages Count="2">
@@ -37,7 +40,11 @@
         <PackageName Value="LCL"/>
       </Item2>
     </RequiredPackages>
+<<<<<<< HEAD
     <Units Count="5">
+=======
+    <Units Count="3">
+>>>>>>> 0bfc61bca127bbf56f8ce63db5663cd99e9b60d7
       <Unit0>
         <Filename Value="espluatool.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -47,7 +54,10 @@
         <Filename Value="main_f.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="Form1"/>
+<<<<<<< HEAD
         <HasResources Value="True"/>
+=======
+>>>>>>> 0bfc61bca127bbf56f8ce63db5663cd99e9b60d7
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="main_f"/>
       </Unit1>
@@ -56,6 +66,7 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="espluaaction"/>
       </Unit2>
+<<<<<<< HEAD
       <Unit3>
         <Filename Value="espluaproperties.pas"/>
         <IsPartOfProject Value="True"/>
@@ -66,6 +77,8 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="esplualog"/>
       </Unit4>
+=======
+>>>>>>> 0bfc61bca127bbf56f8ce63db5663cd99e9b60d7
     </Units>
   </ProjectOptions>
   <CompilerOptions>
