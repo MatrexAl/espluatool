@@ -52,6 +52,7 @@ begin
     if fileexists(getLogFileName) then
       t.loadfromfile(getLogFileName);
     s := v_msg;
+    s := v_msg;
     s := StringReplace(s, #13#10, '', [rfReplaceAll, rfIgnoreCase]);
     t.Add(datetimetostr(now) + ' - ' + s);
     t.SaveToFile(getLogFileName);
