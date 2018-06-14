@@ -18,7 +18,6 @@ type
     Panel2: TPanel;
     ProgressBar1: TProgressBar;
     Timer1: TTimer;
-    procedure Bevel1ChangeBounds(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
@@ -118,10 +117,6 @@ begin
   RefreshCaption;
   Timer1.Enabled := True;
 end;
-
-procedure TForm1.Bevel1ChangeBounds(Sender: TObject);
-begin
-  end;
 
 procedure TForm1.FormDestroy(Sender: TObject);
 begin

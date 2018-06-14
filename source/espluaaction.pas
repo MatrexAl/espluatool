@@ -264,7 +264,7 @@ begin
     v_filename + ': ' + fESPProperties.getLabFile);
   if Result.RES = 0 then
   begin
-    ClearFreeLineInReasStr;
+    // ClearFreeLineInReasStr;
     v_res := getReadStr;
   end;
 end;
