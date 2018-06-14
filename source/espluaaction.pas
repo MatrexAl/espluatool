@@ -5,7 +5,8 @@ unit espluaaction;
 interface
 
 uses
-  Classes, SysUtils, CPortCtl, CPort, Crt, StdCtrls, Forms, ComCtrls, espluaproperties, ESPLUALog;
+  Classes, SysUtils, CPortCtl, CPort, Crt, StdCtrls, Forms, ComCtrls,
+  espluaproperties, ESPLUALog;
 
 type
   rResult = record
@@ -31,8 +32,10 @@ type
     function CalcTimeOut(const v_line: string; const v_def: integer): integer;
     procedure ClearFreeLineInReasStr;
     function CutResultLine(const v_script: string): rResult;
-    function ExecuteLuaScript(const v_script: string; const v_timeout: longword; const v_lab: string): rResult; overload;
-    function ExecuteLuaScript(const v_script: TStrings; const v_timeout: longword; const v_lab: string): rResult; overload;
+    function ExecuteLuaScript(const v_script: string; const v_timeout: longword;
+      const v_lab: string): rResult; overload;
+    function ExecuteLuaScript(const v_script: TStrings; const v_timeout: longword;
+      const v_lab: string): rResult; overload;
     function ExecuteLuaStr(const v_script: string): rResult;
     function isNormalStr(const str: string): boolean;
     procedure ClearResult(var v_res: rResult);
@@ -44,17 +47,22 @@ type
     function getReadStr: string;
     function Open: rResult;
     function Close: rResult;
-    function writeFileAction(const v_filename: string; const v_data: string; const v_compile: boolean): rResult;
+    function writeFileAction(const v_filename: string; const v_data: string;
+      const v_compile: boolean): rResult;
     { private declarations }
   public
     { public declarations }
     ProgressBar: TProgressBar;
     ProgressLabel: TLabel;
-    function getFile(const v_filename: string; var v_res: string): rResult;
-    function getFileList(var v_res: string): rResult;
+    function getFile(const v_filename: string; var v_res: string): rResult; overload;
+    function getFile(const v_filename: string; v_res: TStrings): rResult; overload;
+    function getFileList(var v_res: string): rResult; overload;
+    function getFileList(v_res: TStrings): rResult; overload;
     function writeFile(const v_filename: string; const v_data: string): rResult;
-    function writeFileAndCompile(const v_filename: string; const v_data: string): rResult;
-    constructor Create(AOwner: TComponent; const v_port: string; const v_bitrate: integer);
+    function writeFileAndCompile(const v_filename: string;
+      const v_data: string): rResult;
+    constructor Create(AOwner: TComponent; const v_port: string;
+      const v_bitrate: integer);
     destructor Destroy; override;
   end;
 
@@ -92,7 +100,8 @@ begin
   Result := fReadStr.Lines.Text;
 end;
 
-function TESPLuaAction.WaitLine(const v_line: string; const v_timeout: longword): rResult;
+function TESPLuaAction.WaitLine(const v_line: string;
+  const v_timeout: longword): rResult;
 var
   d: longword;
 begin
@@ -112,7 +121,8 @@ begin
   Result.RES := 1;
 end;
 
-procedure TESPLuaAction.RefreshProgress(const v_size, v_pos: integer; const v_lab: string);
+procedure TESPLuaAction.RefreshProgress(const v_size, v_pos: integer;
+  const v_lab: string);
 var
   s: string;
 begin
@@ -181,6 +191,15 @@ begin
     e := length(s) - p - 4 + 1;
   s := copy(s, p, e);
   fReadStr.Text := s;
+
+  // если последняя строка равна > - этого не может быть - уберем эту строку
+  if fReadStr.Lines.Count <> 0 then
+  begin
+    if
+    trim(freadstr.Lines[freadstr.Lines.Count - 1]) = '>' then
+      freadstr.Lines.Delete(freadstr.Lines.Count - 1);
+  end;
+
 end;
 
 function TESPLuaAction.ExecuteLuaStr(const v_script: string): rResult;
@@ -190,7 +209,8 @@ begin
   fESPLog.Add(v_script);
 end;
 
-function TESPLuaAction.ExecuteLuaScript(const v_script: string; const v_timeout: longword; const v_lab: string): rResult;
+function TESPLuaAction.ExecuteLuaScript(const v_script: string;
+  const v_timeout: longword; const v_lab: string): rResult;
 var
   t: TStringList;
 begin
@@ -208,7 +228,8 @@ begin
 end;
 
 
-function TESPLuaAction.ExecuteLuaScript(const v_script: TStrings; const v_timeout: longword; const v_lab: string): rResult;
+function TESPLuaAction.ExecuteLuaScript(const v_script: TStrings;
+  const v_timeout: longword; const v_lab: string): rResult;
 var
   r: integer;
 begin
@@ -239,12 +260,21 @@ begin
   fESPLog.Clear;
   v_res := '';
   cmd := 'if file.open("' + v_filename + '") then print(file.read()) file.close() end';
-  Result := ExecuteLuaScript(cmd, fESPProperties.getWaitResultDelay, v_filename + ': ' + fESPProperties.getLabFile);
+  Result := ExecuteLuaScript(cmd, fESPProperties.getWaitResultDelay,
+    v_filename + ': ' + fESPProperties.getLabFile);
   if Result.RES = 0 then
   begin
     ClearFreeLineInReasStr;
     v_res := getReadStr;
   end;
+end;
+
+function TESPLuaAction.getFile(const v_filename: string; v_res: TStrings): rResult;
+var
+  s: string;
+begin
+  Result := getfile(v_filename, s);
+  v_res.Text := s;
 end;
 
 
@@ -271,7 +301,8 @@ begin
   fESPLog.Clear;
   v_res := '';
   cmd := 'l = file.list(); for k in pairs(l) do print(k) end';
-  Result := ExecuteLuaScript(cmd, fESPProperties.getWaitResultDelay, fESPProperties.getLabFileList);
+  Result := ExecuteLuaScript(cmd, fESPProperties.getWaitResultDelay,
+    fESPProperties.getLabFileList);
   if Result.RES = 0 then
   begin
     ClearFreeLineInReasStr;
@@ -279,20 +310,31 @@ begin
   end;
 end;
 
-function TESPLuaAction.writeFileAndCompile(const v_filename: string; const v_data: string): rResult;
+function TESPLuaAction.getFileList(v_res: TStrings): rResult;
+var
+  s: string;
+begin
+  Result := getFileList(s);
+  v_res.Text := s;
+end;
+
+function TESPLuaAction.writeFileAndCompile(const v_filename: string;
+  const v_data: string): rResult;
 begin
   fESPLog.Clear;
   Result := writeFileAction(v_filename, v_data, True);
 end;
 
 
-function TESPLuaAction.writeFile(const v_filename: string; const v_data: string): rResult;
+function TESPLuaAction.writeFile(const v_filename: string;
+  const v_data: string): rResult;
 begin
   fESPLog.Clear;
   Result := writeFileAction(v_filename, v_data, False);
 end;
 
-function TESPLuaAction.writeFileAction(const v_filename: string; const v_data: string; const v_compile: boolean): rResult;
+function TESPLuaAction.writeFileAction(const v_filename: string;
+  const v_data: string; const v_compile: boolean): rResult;
 var
   t: TStringList;
   i: TStringList;
@@ -315,7 +357,8 @@ begin
   end;
 
   t.add('file.close();');
-  Result := ExecuteLuaScript(t, fESPProperties.getWaitResultDelay, v_filename + ': ' + fESPProperties.getLabWriteFile);
+  Result := ExecuteLuaScript(t, fESPProperties.getWaitResultDelay,
+    v_filename + ': ' + fESPProperties.getLabWriteFile);
 
   FreeAndNil(t);
   FreeAndNil(i);
@@ -325,7 +368,9 @@ begin
   begin
     if Result.RES = 0 then
     begin
-      Result := ExecuteLuaScript('dofile("' + v_filename + '");', fESPProperties.getWaitResultDelayCompile, v_filename + ': ' + v_filename + ': ' + fESPProperties.getLabCompile);
+      Result := ExecuteLuaScript('dofile("' + v_filename + '");',
+        fESPProperties.getWaitResultDelayCompile, v_filename + ': ' +
+        v_filename + ': ' + fESPProperties.getLabCompile);
       if getReadStr <> '' then
       begin
         Result.MSG := getReadStr;
@@ -335,7 +380,6 @@ begin
   end;
 
 end;
-
 
 
 
@@ -373,7 +417,8 @@ begin
   end;
 end;
 
-constructor TESPLuaAction.Create(AOwner: TComponent; const v_port: string; const v_bitrate: integer);
+constructor TESPLuaAction.Create(AOwner: TComponent; const v_port: string;
+  const v_bitrate: integer);
 begin
   fESPProperties := tESPLUAProperties.Create;
   ComPort := TComPort.Create(AOwner);

@@ -18,19 +18,23 @@ type
     Panel2: TPanel;
     ProgressBar1: TProgressBar;
     Timer1: TTimer;
+    procedure Bevel1ChangeBounds(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
   private
 
     fESPProperties: tespluaproperties;
+    function getAllFile(const v_fn: string; v_p: string; v_b: integer): rResult;
     function GetParam(const v_param: string): string;
+    function isGetAllFileContent: boolean;
     function isWrite: boolean;
     function isWriteCompile: boolean;
     function ParamExists(const v_param: string): boolean;
     procedure RefreshCaption;
     procedure ShowResult(const v_res: rResult);
-    function WriteFileAction(const v_fn: string; v_p: string; v_b: integer; const v_compile: boolean): rResult;
+    function WriteFileAction(const v_fn: string; v_p: string; v_b: integer;
+      const v_compile: boolean): rResult;
 
     { private declarations }
   public
@@ -85,7 +89,8 @@ function TForm1.isWrite: boolean;
 var
   i: integer;
 begin
-  Result := ParamExists('-p') and ParamExists('-b') and ParamExists('-w') and trystrtoint(getparam('-b'), i);
+  Result := ParamExists('-p') and ParamExists('-b') and ParamExists('-w') and
+    trystrtoint(getparam('-b'), i);
 end;
 
 
@@ -93,16 +98,30 @@ function TForm1.isWriteCompile: boolean;
 var
   i: integer;
 begin
-  Result := ParamExists('-p') and ParamExists('-b') and ParamExists('-wc') and trystrtoint(getparam('-b'), i);
+  Result := ParamExists('-p') and ParamExists('-b') and ParamExists('-wc') and
+    trystrtoint(getparam('-b'), i);
+end;
+
+function TForm1.isGetAllFileContent: boolean;
+var
+  i: integer;
+begin
+  Result := ParamExists('-p') and ParamExists('-b') and ParamExists('-ga') and
+    trystrtoint(getparam('-b'), i);
 end;
 
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
   fESPProperties := tespluaproperties.Create();
+  label2.Caption:='';
   RefreshCaption;
   Timer1.Enabled := True;
 end;
+
+procedure TForm1.Bevel1ChangeBounds(Sender: TObject);
+begin
+  end;
 
 procedure TForm1.FormDestroy(Sender: TObject);
 begin
@@ -124,13 +143,16 @@ begin
     Caption := Caption + ' - ' + fESPProperties.getLabWriteFile;
   if isWriteCompile then
     Caption := Caption + ' - ' + fESPProperties.getLabWriteFileCompile;
+  if isGetAllFileContent then
+    Caption := Caption + ' - ' + fESPProperties.getLabAllFileContent;
 
   panel2.Caption := '  ' + Caption;
 end;
 
 
 
-function TForm1.WriteFileAction(const v_fn: string; v_p: string; v_b: integer; const v_compile: boolean): rResult;
+function TForm1.WriteFileAction(const v_fn: string; v_p: string;
+  v_b: integer; const v_compile: boolean): rResult;
 var
   t: TStringList;
   espaction: tespluaaction;
@@ -155,7 +177,29 @@ begin
   end;
 end;
 
-
+function TForm1.getAllFile(const v_fn: string; v_p: string; v_b: integer): rResult;
+var
+  t: TStringList;
+  sc: TStringList;
+  espaction: tespluaaction;
+  r: integer;
+begin
+  t := TStringList.Create;
+  sc := TStringList.Create;
+  espaction := tespluaaction.Create(self, v_p, v_b);
+  espaction.ProgressBar := Progressbar1;
+  espaction.ProgressLabel := label2;
+  Result := espaction.getFileList(t);
+  r := 0;
+  while (r <> t.Count) and (Result.RES = 0) do
+  begin
+    Result := espaction.getFile(t[r], sc);
+    sc.SaveToFile(v_fn + t[r]);
+    Inc(r);
+  end;
+  FreeAndNil(sc);
+  FreeAndNil(t);
+end;
 
 procedure TForm1.Timer1Timer(Sender: TObject);
 var
@@ -180,6 +224,14 @@ begin
     port := getparam('-p');
     bt := StrToInt(getparam('-b'));
     r := WriteFileAction(fn, port, bt, True);
+  end
+  else
+  if isGetAllFileContent then
+  begin
+    fn := getparam('-ga');
+    port := getparam('-p');
+    bt := StrToInt(getparam('-b'));
+    r := GetAllFile(fn, port, bt);
   end
   else
   begin

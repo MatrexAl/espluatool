@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
   <ProjectOptions>
-    <Version Value="9"/>
+    <Version Value="10"/>
     <PathDelim Value="\"/>
     <General>
       <SessionStorage Value="InProjectDir"/>
@@ -14,9 +14,6 @@
     <i18n>
       <EnableI18N LFM="False"/>
     </i18n>
-    <VersionInfo>
-      <StringTable ProductVersion=""/>
-    </VersionInfo>
     <BuildModes Count="1">
       <Item1 Name="Default" Default="True"/>
     </BuildModes>
@@ -26,7 +23,7 @@
     <RunParams>
       <local>
         <FormatVersion Value="1"/>
-        <CommandLineParams Value="-p COM6 -b 9600 -wc &quot;c:\init.lua&quot;"/>
+        <CommandLineParams Value="-p COM3 -b 9600 -w c:\init.lua"/>
       </local>
     </RunParams>
     <RequiredPackages Count="2">
@@ -41,7 +38,6 @@
       <Unit0>
         <Filename Value="espluatool.lpr"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="espluatool"/>
       </Unit0>
       <Unit1>
         <Filename Value="main_f.pas"/>
@@ -49,22 +45,18 @@
         <ComponentName Value="Form1"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="main_f"/>
       </Unit1>
       <Unit2>
         <Filename Value="espluaaction.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="espluaaction"/>
       </Unit2>
       <Unit3>
         <Filename Value="espluaproperties.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="espluaproperties"/>
       </Unit3>
       <Unit4>
         <Filename Value="esplualog.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="esplualog"/>
       </Unit4>
     </Units>
   </ProjectOptions>
@@ -72,7 +64,7 @@
     <Version Value="11"/>
     <PathDelim Value="\"/>
     <Target>
-      <Filename Value="d:\Lazarus\!project\espluatool\bin\espluatool"/>
+      <Filename Value="..\bin\espluatool"/>
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
@@ -95,12 +87,6 @@
         </Win32>
       </Options>
     </Linking>
-    <Other>
-      <CompilerMessages>
-        <MsgFileName Value=""/>
-      </CompilerMessages>
-      <CompilerPath Value="$(CompPath)"/>
-    </Other>
   </CompilerOptions>
   <Debugging>
     <Exceptions Count="4">

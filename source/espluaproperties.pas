@@ -16,6 +16,7 @@ type
     { private declarations }
   public
     { public declarations }
+    function getLabAllFileContent: string;
     function getLabWriteFile: string;
     function getLabWriteFileCompile: string;
     function getOpenRTSDelay: integer;
@@ -39,6 +40,11 @@ type
 implementation
 
 { TESPLuaProperties }
+
+function TESPLuaProperties.getLabAllFileContent: string;
+begin
+  Result := 'Сохраняю содержимое всех файлов';
+end;
 
 function TESPLuaProperties.getLabCmdError: string;
 begin
