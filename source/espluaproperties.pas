@@ -13,10 +13,14 @@ type
 
   TESPLuaProperties = class
   private
-    function getLabCompare: string;
     { private declarations }
   public
     { public declarations }
+    function getLabFileContent: string;
+    function getLabOk: string;
+    function getLabTimeout: string;
+    function getLabCompare: string;
+    function getLabNullPath: string;
     function getLabAllFileContent: string;
     function getLabWriteFile: string;
     function getLabWriteFileCompile: string;
@@ -32,6 +36,7 @@ type
     function getLabOpen: string;
     function getLabWaitNodeMCU: string;
     function getLabFileNotExists: string;
+    function getLabCanCreatePath: string;
     function getLabCmdError: string;
     constructor Create();
     destructor Destroy; override;
@@ -41,6 +46,23 @@ type
 implementation
 
 { TESPLuaProperties }
+
+function TESPLuaProperties.getLabOk: string;
+begin
+  Result := 'ОК';
+end;
+
+
+function TESPLuaProperties.getLabTimeout: string;
+begin
+  Result := 'Время ожидания истекло';
+end;
+
+
+function TESPLuaProperties.getLabFileContent: string;
+begin
+  Result := 'Сохраняю содержимое файла';
+end;
 
 function TESPLuaProperties.getLabAllFileContent: string;
 begin
@@ -56,6 +78,17 @@ end;
 function TESPLuaProperties.getLabFileNotExists: string;
 begin
   Result := 'Файл не существует';
+end;
+
+function TESPLuaProperties.getLabNullPath: string;
+begin
+  Result := 'Каталог не задан';
+end;
+
+
+function TESPLuaProperties.getLabCanCreatePath: string;
+begin
+  Result := 'Немогу создать каталог';
 end;
 
 
@@ -115,7 +148,7 @@ end;
 // если ответ не меняется считаем что передача завершена
 function TESPLuaProperties.getWaitResultDelay: integer;
 begin
-  Result := 300;
+  Result := 500;
 end;
 
 // После записи в устройство ждем компиляции это время

@@ -15,7 +15,6 @@ type
   TForm1 = class(TForm)
     Label2: TLabel;
     Panel1: TPanel;
-    Panel2: TPanel;
     ProgressBar1: TProgressBar;
     Timer1: TTimer;
     procedure FormCreate(Sender: TObject);
@@ -24,9 +23,19 @@ type
   private
 
     fESPProperties: tespluaproperties;
-    function getAllFile(const v_fn: string; v_p: string; v_b: integer): rResult;
+    function ConnectStr(const s, s1, s2: string): string;
+    function getAllFile(v_fn: string; v_p: string; v_b: integer): rResult;
+    function GetBitrate: integer;
+    function GetCompare: boolean;
+    function getFile(v_fn: string; v_p: string; v_b: integer; const v_node_fn: string): rResult;
+    function GetFile: string;
+    function GetListFolder: string;
     function GetParam(const v_param: string): string;
+    function GetPort: string;
+    function GetWriteFileName: string;
+    function isBasicParam: boolean;
     function isGetAllFileContent: boolean;
+    function isGetFileContent: boolean;
     function isWrite: boolean;
     function isWriteCompile: boolean;
     function ParamExists(const v_param: string): boolean;
@@ -83,26 +92,32 @@ begin
 end;
 
 
-function TForm1.isWrite: boolean;
+
+function TForm1.isBasicParam: boolean;
 var
   i: integer;
 begin
-  Result := ParamExists('-p') and ParamExists('-b') and ParamExists('-w') and trystrtoint(getparam('-b'), i);
+  Result := ParamExists('-p') and ParamExists('-b') and trystrtoint(getparam('-b'), i);
 end;
 
+function TForm1.isWrite: boolean;
+begin
+  Result := isBasicParam and ParamExists('-w');
+end;
 
 function TForm1.isWriteCompile: boolean;
-var
-  i: integer;
 begin
-  Result := ParamExists('-p') and ParamExists('-b') and ParamExists('-wc') and trystrtoint(getparam('-b'), i);
+  Result := isBasicParam and ParamExists('-wc');
 end;
 
 function TForm1.isGetAllFileContent: boolean;
-var
-  i: integer;
 begin
-  Result := ParamExists('-p') and ParamExists('-b') and ParamExists('-ga') and trystrtoint(getparam('-b'), i);
+  Result := isBasicParam and ParamExists('-ga');
+end;
+
+function TForm1.isGetFileContent: boolean;
+begin
+  Result := isBasicParam and ParamExists('-g') and ParamExists('-f');
 end;
 
 
@@ -126,22 +141,34 @@ begin
     MessageDlg(Caption, v_res.MSG, mtConfirmation, [mbOK], 0);
 end;
 
+function TForm1.ConnectStr(const s, s1, s2: string): string;
+begin
+  result:='';
+  if s<>'' then result:=result+s+', ';
+  if s1<>'' then result:=result+s1+', ';
+  if s2<>'' then result:=result+s2+', ';
+  if result<>'' then setlength(result, length(result)-2);
+end;
 
 procedure TForm1.RefreshCaption;
-
+var
+  s: string;
 begin
+  s := '';
+  if GetCompare then
+    s := fESPProperties.getLabCompare;
   if isWrite then
   begin
-    Caption := Caption + ' - ' + fESPProperties.getLabWriteFile;
+    Caption := Caption + ' - ' + ConnectStr(fESPProperties.getLabWriteFile, s, '');
   end;
   if isWriteCompile then
   begin
-    Caption := Caption + ' - ' + fESPProperties.getLabWriteFileCompile;
+    Caption := Caption + ' - ' + ConnectStr(fESPProperties.getLabWriteFile, s, fESPProperties.getLabCompile);
   end;
   if isGetAllFileContent then
-    Caption := Caption + ' - ' + fESPProperties.getLabAllFileContent;
-
-  panel2.Caption := '  ' + Caption;
+    Caption := Caption + ' - ' + ConnectStr(fESPProperties.getLabAllFileContent, '','');
+  if isGetFileContent then
+    Caption := Caption + ' - ' + ConnectStr(fESPProperties.getLabFileContent, '','');
 end;
 
 
@@ -172,65 +199,117 @@ begin
   end;
 end;
 
-function TForm1.getAllFile(const v_fn: string; v_p: string; v_b: integer): rResult;
+
+
+function TForm1.getFile(v_fn: string; v_p: string; v_b: integer; const v_node_fn: string): rResult;
 var
-  t: TStringList;
-  sc: TStringList;
   espaction: tespluaaction;
-  r: integer;
+  sc: TStringList;
 begin
-  t := TStringList.Create;
   sc := TStringList.Create;
+  v_fn := includetrailingpathdelimiter(v_fn);
   espaction := tespluaaction.Create(self, v_p, v_b);
   espaction.ProgressBar := Progressbar1;
   espaction.ProgressLabel := label2;
-  Result := espaction.getFileList(t);
-  r := 0;
-  while (r <> t.Count) and (Result.RES = 0) do
-  begin
-    Result := espaction.getFile(t[r], sc);
-    sc.SaveToFile(v_fn + t[r]);
-    Inc(r);
-  end;
+  Result := espaction.getFile(v_node_fn, sc);
+  sc.SaveToFile(v_fn + v_node_fn);
   FreeAndNil(sc);
-  FreeAndNil(t);
+  FreeAndNil(espaction);
 end;
+
+function TForm1.getAllFile(v_fn: string; v_p: string; v_b: integer): rResult;
+var
+  t: TStringList;
+  espaction: tespluaaction;
+  r: integer;
+begin
+  if v_fn <> '' then
+  begin
+    v_fn := includetrailingpathdelimiter(v_fn);
+    if forcedirectories(v_fn) then
+    begin
+      t := TStringList.Create;
+      espaction := tespluaaction.Create(self, v_p, v_b);
+      espaction.ProgressBar := Progressbar1;
+      espaction.ProgressLabel := label2;
+      Result := espaction.getFileList(t);
+      FreeAndNil(espaction);
+      r := 0;
+      while (r <> t.Count) and (Result.RES = 0) do
+      begin
+        Result := getFile(v_fn, v_p, v_b, t[r]);
+        Inc(r);
+      end;
+      FreeAndNil(t);
+    end
+    else
+    begin
+      Result.MSG := v_fn + ': ' + fESPProperties.getLabCanCreatePath;
+      Result.RES := 1;
+    end;
+  end
+  else
+  begin
+    Result.MSG := fESPProperties.getLabNullPath;
+    Result.RES := 1;
+  end;
+end;
+
+
+function TForm1.GetPort: string;
+begin
+  Result := getparam('-p');
+end;
+
+function TForm1.GetBitrate: integer;
+begin
+  Result := StrToInt(getparam('-b'));
+end;
+
+function TForm1.GetWriteFileName: string;
+begin
+  Result := getparam('-w');
+  if Result = '' then
+    Result := getparam('-wc');
+end;
+
+function TForm1.GetListFolder: string;
+begin
+  Result := getparam('-ga');
+  if Result = '' then
+    Result := getparam('-g');
+end;
+
+function TForm1.GetFile: string;
+begin
+  Result := getparam('-f');
+end;
+
+function TForm1.GetCompare: boolean;
+begin
+  Result := paramexists('-c');
+end;
+
+
+
 
 procedure TForm1.Timer1Timer(Sender: TObject);
 var
   r: rResult;
-  fn, port: string;
-  bt: integer;
-  comp: boolean;
 begin
   Timer1.Enabled := False;
 
-
   if isWrite then
-  begin
-    fn := getparam('-w');
-    port := getparam('-p');
-    bt := StrToInt(getparam('-b'));
-    comp := paramexists('-c');
-    r := WriteFileAction(fn, port, bt, False, comp);
-  end
+    r := WriteFileAction(GetWriteFileName, GetPort, GetBitrate, False, GetCompare)
   else
   if isWriteCompile then
-  begin
-    fn := getparam('-wc');
-    port := getparam('-p');
-    bt := StrToInt(getparam('-b'));
-    comp := paramexists('-c');
-    r := WriteFileAction(fn, port, bt, True, comp);
-  end
+    r := WriteFileAction(GetWriteFileName, GetPort, GetBitrate, True, GetCompare)
   else
   if isGetAllFileContent then
-  begin
-    fn := getparam('-ga');
-    port := getparam('-p');
-    bt := StrToInt(getparam('-b'));
-    r := GetAllFile(fn, port, bt);
-  end
+    r := GetAllFile(GetListFolder, GetPort, GetBitrate)
+  else
+  if isGetFileContent then
+    r := GetFile(GetListFolder, GetPort, GetBitrate, GetFile)
   else
   begin
     r.MSG := fESPProperties.getLabCmdError;

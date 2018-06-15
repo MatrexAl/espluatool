@@ -25,15 +25,17 @@ type
   private
     ComDataPacket: TComDataPacket;
     ComPort: TComPort;
-    fReadStr: tmemo;
+    fReadStrMemo: tmemo;
+    fReadStr: string;
     fForm: TForm;
     fESPProperties: tESPLUAProperties;
     fESPLog: tESPLUALog;
     fNowStr: string;
+    ln: integer;
     function CalcTimeOut(const v_line: string; const v_def: integer): integer;
     procedure ClearFreeLineInReasStr;
-    procedure ClearLastFreeLineInReadStr;
-    procedure ClearLastFreeLineInStrings(v_dat: tstrings);
+    procedure ClearLastFreeLineInStrings(v_dat: TStrings);overload;
+    procedure ClearLastFreeLineInStrings(var v_dat: string);overload;
     function compareline_2(const v_line, v_str: string): boolean;
     function CutResultLine(const v_script: string): rResult;
     function ExecuteLuaScript(const v_script: string; const v_timeout: longword; const v_lab: string): rResult; overload;
@@ -58,7 +60,6 @@ type
     { public declarations }
     ProgressBar: TProgressBar;
     ProgressLabel: TLabel;
-    Memo: tMemo;
     function compareFile(const v_filename: string; const v_dat: string): rResult;
     function getFile(const v_filename: string; var v_res: string): rResult; overload;
     function getFile(const v_filename: string; v_res: TStrings): rResult; overload;
@@ -76,7 +77,7 @@ implementation
 
 procedure TESPLuaAction.ClearResult(var v_res: rResult);
 begin
-  v_res.MSG := 'OK';
+  v_res.MSG := fESPProperties.getLabOk;
   v_res.RES := 0;
 end;
 
@@ -86,13 +87,14 @@ begin
 end;
 
 procedure TESPLuaAction.OnPacket(Sender: TObject; const Str: string);
+var
+  t: TStringList;
 begin
   if isNormalStr(str) then
   begin
-    fReadStr.Lines.Text := fReadStr.Lines.Text + str;
+    fReadStrMemo.Lines.Text := fReadStrMemo.Lines.Text + str;
+    fReadStr := fReadStr + str;
     fNowStr := str;
-
-    // fReadStr.Lines.SaveToFile('c:\aaa.aa');
   end;
 end;
 
@@ -104,7 +106,7 @@ end;
 
 function TESPLuaAction.getReadStr: string;
 begin
-  Result := fReadStr.Lines.Text;
+  Result := fReadStr;
 end;
 
 function TESPLuaAction.getNowStr: string;
@@ -116,7 +118,6 @@ function TESPLuaAction.compareline_2(const v_line, v_str: string): boolean;
 var
   t: TStringList;
 begin
-
   t := TStringList.Create;
   t.Text := v_str;
   if t.Count <> 0 then
@@ -125,10 +126,7 @@ begin
   end
   else
     Result := False;
-
-
   FreeAndNil(t);
-
 end;
 
 function TESPLuaAction.WaitLine(const v_line: string; const v_timeout: longword; const v_pos: integer = -1): rResult;
@@ -136,7 +134,8 @@ var
   d: longword;
 begin
   ClearResult(Result);
-  fReadStr.Clear;
+  fReadStrMemo.Clear;
+  fReadStr := '';
   ComDataPacket.OnPacket := @OnPacket;
   d := 0;
   while d < v_timeout do
@@ -159,7 +158,7 @@ begin
     end;
 
   end;
-  Result.MSG := 'TIMEOUT';
+  Result.MSG := fESPProperties.getLabTimeout;
   Result.RES := 1;
 end;
 
@@ -196,7 +195,8 @@ var
   d: longword;
 begin
   ClearResult(Result);
-  fReadStr.Clear;
+  fReadStrMemo.Clear;
+  fReadStr := '';
   ComDataPacket.OnPacket := @OnPacket;
   oldstr := '';
   d := 0;
@@ -219,6 +219,7 @@ var
   s: string;
   p, e: integer;
 begin
+
   s := getReadStr;
   p := pos(AnsiUpperCase(v_script), AnsiUpperCase(s));
   if p = 0 then
@@ -231,14 +232,10 @@ begin
   else
     e := length(s) - p - 4 + 1;
   s := copy(s, p, e);
-  fReadStr.Text := s;
 
-  // если последняя строка равна > - этого не может быть - уберем эту строку
-  if fReadStr.Lines.Count <> 0 then
-  begin
-    if trim(freadstr.Lines[freadstr.Lines.Count - 1]) = '>' then
-      freadstr.Lines.Delete(freadstr.Lines.Count - 1);
-  end;
+  fReadStr:=s;
+  ClearLastFreeLineInStrings(fReadStr);
+  fReadStrMemo.Text:=fReadStr;
 
 end;
 
@@ -313,7 +310,8 @@ begin
   if Result.RES = 0 then
   begin
     // ClearFreeLineInReasStr;
-    ClearLastFreeLineInReadStr;
+    ClearLastFreeLineInStrings(fReadStr);
+    fReadStrMemo.Text:=fReadStr;
     v_res := getReadStr;
   end;
 end;
@@ -326,30 +324,42 @@ begin
   v_res.Text := s;
 end;
 
-procedure TESPLuaAction.ClearLastFreeLineInStrings(v_dat:tstrings);
+procedure TESPLuaAction.ClearLastFreeLineInStrings(v_dat: TStrings);
+var
+  s: string;
 begin
-  while (v_dat.Count <> 0) and (trim(v_dat[v_dat.Count-1])='') do
+  while (v_dat.Count <> 0) and (trim(v_dat[v_dat.Count - 1]) = '') do
   begin
-      v_dat.Delete(v_dat.Count-1);
+    v_dat.Delete(v_dat.Count - 1);
+  end;
+  if v_dat.Count <> 0 then
+  begin
+    if trim(v_dat[v_dat.Count - 1]) = '>' then
+      v_dat.Delete(v_dat.Count - 1);
   end;
 end;
 
-procedure TESPLuaAction.ClearLastFreeLineInReadStr;
+procedure TESPLuaAction.ClearLastFreeLineInStrings(var v_dat: string);
+var
+  t: TStringList;
 begin
-  ClearLastFreeLineInStrings(fReadStr.Lines);
+  t := TStringList.Create;
+  t.Text := v_dat;
+  ClearLastFreeLineInStrings(t);
+  v_dat := t.Text;
+  FreeAndNil(t);
 end;
-
 
 procedure TESPLuaAction.ClearFreeLineInReasStr;
 var
   r: integer;
 begin
   r := 0;
-  while r <> fReadStr.Lines.Count do
+  while r <> fReadStrMemo.Lines.Count do
   begin
-    if fReadStr.Lines[r] = '' then
+    if fReadStrMemo.Lines[r] = '' then
     begin
-      fReadStr.Lines.Delete(r);
+      fReadStrMemo.Lines.Delete(r);
     end
     else
       Inc(r);
@@ -360,6 +370,7 @@ function TESPLuaAction.getFileList(var v_res: string): rResult;
 var
   cmd: string;
 begin
+  ln := 100;
   fESPLog.Clear;
   v_res := '';
   cmd := 'l = file.list(); for k in pairs(l) do print(k) end';
@@ -463,15 +474,15 @@ begin
   Result := getFile(v_filename, s);
   if Result.RES = 0 then
   begin
-    t:=tstringlist.Create;
-    t.text:=v_dat;
+    t := TStringList.Create;
+    t.Text := v_dat;
     ClearLastFreeLineInStrings(t);
     if (t.Text <> s) then
     begin
       Result.MSG := 'Не равны';
       Result.RES := 1;
     end;
-    freeandnil(t);
+    FreeAndNil(t);
   end;
 end;
 
@@ -519,10 +530,10 @@ begin
   ComDataPacket.ComPort := ComPort;
   ComPort.Port := AnsiUpperCase(v_port);
   ComPort.BaudRate := StrToBaudRate(IntToStr(v_bitrate));
-  fReadStr := tmemo.Create(AOwner);
-  fReadStr.Left := -1000;
-  fReadStr.WordWrap := False;
-  fReadStr.Parent := (AOwner as TForm);
+  fReadStrMemo := tmemo.Create(AOwner);
+  fReadStrMemo.Left := -1000;
+  fReadStrMemo.WordWrap := False;
+  fReadStrMemo.Parent := (AOwner as TForm);
   ProgressBar := nil;
   ProgressLabel := nil;
   fESPLog := tESPLUALog.Create;
@@ -532,7 +543,7 @@ end;
 destructor TESPLuaAction.Destroy;
 begin
   Close;
-  FreeAndNil(fReadStr);
+  FreeAndNil(fReadStrMemo);
   FreeAndNil(ComPort);
   FreeAndNil(ComDataPacket);
   FreeAndNil(fESPProperties);

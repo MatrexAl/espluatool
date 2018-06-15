@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
   <ProjectOptions>
-    <Version Value="10"/>
+    <Version Value="9"/>
     <PathDelim Value="\"/>
     <General>
       <SessionStorage Value="InProjectDir"/>
@@ -23,7 +23,7 @@
     <RunParams>
       <local>
         <FormatVersion Value="1"/>
-        <CommandLineParams Value="-p COM3 -b 9600 -ga c:\"/>
+        <CommandLineParams Value="-p COM6 -b 9600 -wc &quot;c:\init.lua&quot; -c"/>
       </local>
     </RunParams>
     <RequiredPackages Count="2">
@@ -45,14 +45,17 @@
         <ComponentName Value="Form1"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+        <UnitName Value="main_f"/>
       </Unit1>
       <Unit2>
         <Filename Value="espluaaction.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="espluaaction"/>
       </Unit2>
       <Unit3>
         <Filename Value="espluaproperties.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="espluaproperties"/>
       </Unit3>
       <Unit4>
         <Filename Value="esplualog.pas"/>
@@ -87,9 +90,12 @@
         </Win32>
       </Options>
     </Linking>
+    <Other>
+      <CompilerPath Value="$(CompPath)"/>
+    </Other>
   </CompilerOptions>
   <Debugging>
-    <Exceptions Count="4">
+    <Exceptions Count="5">
       <Item1>
         <Name Value="EAbort"/>
       </Item1>
@@ -102,6 +108,9 @@
       <Item4>
         <Name Value="EComPort"/>
       </Item4>
+      <Item5>
+        <Name Value="EReadError"/>
+      </Item5>
     </Exceptions>
   </Debugging>
 </CONFIG>
