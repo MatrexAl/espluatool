@@ -2,13 +2,13 @@
 <CONFIG>
   <ProjectSession>
     <PathDelim Value="\"/>
-    <Version Value="9"/>
+    <Version Value="10"/>
     <BuildModes Active="Default"/>
-    <Units Count="14">
+    <Units Count="15">
       <Unit0>
         <Filename Value="espluatool.lpr"/>
         <IsPartOfProject Value="True"/>
-        <UsageCount Value="40"/>
+        <UsageCount Value="43"/>
       </Unit0>
       <Unit1>
         <Filename Value="main_f.pas"/>
@@ -16,44 +16,36 @@
         <ComponentName Value="Form1"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="main_f"/>
-        <EditorIndex Value="0"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="155"/>
-        <CursorPos X="70" Y="170"/>
-        <UsageCount Value="40"/>
+        <TopLine Value="186"/>
+        <CursorPos Y="194"/>
+        <UsageCount Value="43"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
       </Unit1>
       <Unit2>
         <Filename Value="espluaaction.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="espluaaction"/>
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="295"/>
-        <CursorPos X="18" Y="309"/>
-        <UsageCount Value="40"/>
+        <TopLine Value="378"/>
+        <CursorPos X="7" Y="381"/>
+        <UsageCount Value="43"/>
         <Loaded Value="True"/>
       </Unit2>
       <Unit3>
         <Filename Value="espluaproperties.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="espluaproperties"/>
-        <EditorIndex Value="2"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="1"/>
-        <CursorPos X="31" Y="19"/>
-        <UsageCount Value="40"/>
-        <Loaded Value="True"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="14"/>
+        <CursorPos X="40" Y="20"/>
+        <UsageCount Value="43"/>
       </Unit3>
       <Unit4>
         <Filename Value="esplualog.pas"/>
         <IsPartOfProject Value="True"/>
         <TopLine Value="10"/>
         <CursorPos Y="55"/>
-        <UsageCount Value="33"/>
+        <UsageCount Value="36"/>
       </Unit4>
       <Unit5>
         <Filename Value="..\..\..\components\comport\CPort.pas"/>
@@ -97,7 +89,7 @@
         <Filename Value="main_f.lfm"/>
         <WindowIndex Value="1"/>
         <TopLine Value="24"/>
-        <CursorPos X="1" Y="52"/>
+        <CursorPos Y="52"/>
         <UsageCount Value="10"/>
         <DefaultSyntaxHighlighter Value="LFM"/>
       </Unit11>
@@ -114,132 +106,127 @@
         <CursorPos X="42" Y="3640"/>
         <UsageCount Value="10"/>
       </Unit13>
+      <Unit14>
+        <Filename Value="..\..\..\lcl\interfaces\win32\win32memostrings.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="160"/>
+        <CursorPos Y="168"/>
+        <UsageCount Value="11"/>
+      </Unit14>
     </Units>
-    <General>
-      <ActiveWindowIndexAtStart Value="0"/>
-    </General>
-    <JumpHistory Count="30" HistoryIndex="29">
+    <JumpHistory Count="28" HistoryIndex="27">
       <Position1>
         <Filename Value="espluaaction.pas"/>
-        <Caret Line="396" Column="61" TopLine="377"/>
+        <Caret Line="411" Column="31" TopLine="400"/>
       </Position1>
       <Position2>
         <Filename Value="espluaaction.pas"/>
-        <Caret Line="400" Column="94" TopLine="377"/>
+        <Caret Line="451" Column="8" TopLine="439"/>
       </Position2>
       <Position3>
         <Filename Value="espluaaction.pas"/>
-        <Caret Line="403" Column="62" TopLine="377"/>
+        <Caret Line="39" Column="35" TopLine="34"/>
       </Position3>
       <Position4>
         <Filename Value="espluaaction.pas"/>
-        <Caret Line="406" Column="126" TopLine="381"/>
+        <Caret Line="459" Column="15" TopLine="449"/>
       </Position4>
       <Position5>
         <Filename Value="espluaaction.pas"/>
-        <Caret Line="439" Column="9" TopLine="414"/>
+        <Caret Line="454" Column="33" TopLine="447"/>
       </Position5>
       <Position6>
         <Filename Value="espluaaction.pas"/>
-        <Caret Line="435" Column="1" TopLine="414"/>
+        <Caret Line="465" TopLine="461"/>
       </Position6>
       <Position7>
         <Filename Value="espluaaction.pas"/>
-        <Caret Line="437" Column="22" TopLine="416"/>
+        <Caret Line="39" TopLine="35"/>
       </Position7>
       <Position8>
         <Filename Value="espluaaction.pas"/>
-        <Caret Line="439" Column="1" TopLine="416"/>
+        <Caret Line="390" Column="36" TopLine="385"/>
       </Position8>
       <Position9>
-        <Filename Value="main_f.pas"/>
-        <Caret Line="156" Column="103" TopLine="135"/>
+        <Filename Value="espluaaction.pas"/>
+        <Caret Line="42" Column="35" TopLine="37"/>
       </Position9>
       <Position10>
-        <Filename Value="main_f.pas"/>
-        <Caret Line="150" Column="41" TopLine="132"/>
+        <Filename Value="espluaaction.pas"/>
+        <Caret Line="390" Column="25" TopLine="380"/>
       </Position10>
       <Position11>
-        <Filename Value="main_f.pas"/>
-        <Caret Line="162" Column="67" TopLine="138"/>
+        <Filename Value="espluaaction.pas"/>
+        <Caret Line="460" Column="14"/>
       </Position11>
       <Position12>
-        <Filename Value="main_f.pas"/>
-        <Caret Line="274" Column="33" TopLine="241"/>
+        <Filename Value="espluaaction.pas"/>
+        <Caret Line="453" Column="45" TopLine="447"/>
       </Position12>
       <Position13>
-        <Filename Value="main_f.pas"/>
-        <Caret Line="269" Column="27" TopLine="140"/>
+        <Filename Value="espluaaction.pas"/>
+        <Caret Line="44" Column="31" TopLine="38"/>
       </Position13>
       <Position14>
-        <Filename Value="main_f.pas"/>
-        <Caret Line="157" Column="25" TopLine="138"/>
+        <Filename Value="espluaaction.pas"/>
+        <Caret Line="72" Column="25" TopLine="62"/>
       </Position14>
       <Position15>
-        <Filename Value="main_f.pas"/>
-        <Caret Line="155" Column="38" TopLine="138"/>
+        <Filename Value="espluaaction.pas"/>
+        <Caret Line="73" Column="29" TopLine="63"/>
       </Position15>
       <Position16>
-        <Filename Value="main_f.pas"/>
-        <Caret Line="164" Column="92" TopLine="145"/>
+        <Filename Value="espluaaction.pas"/>
+        <Caret Line="407" Column="104" TopLine="397"/>
       </Position16>
       <Position17>
-        <Filename Value="main_f.pas"/>
-        <Caret Line="151" Column="1" TopLine="130"/>
+        <Filename Value="espluaaction.pas"/>
+        <Caret Line="391" TopLine="380"/>
       </Position17>
       <Position18>
-        <Filename Value="main_f.pas"/>
-        <Caret Line="166" Column="95" TopLine="149"/>
+        <Filename Value="espluaaction.pas"/>
+        <Caret Line="42" Column="35" TopLine="37"/>
       </Position18>
       <Position19>
-        <Filename Value="main_f.pas"/>
-        <Caret Line="169" Column="87" TopLine="152"/>
+        <Filename Value="espluaaction.pas"/>
+        <Caret Line="390" Column="25" TopLine="380"/>
       </Position19>
       <Position20>
-        <Filename Value="main_f.pas"/>
-        <Caret Line="170" Column="70" TopLine="155"/>
+        <Filename Value="espluaaction.pas"/>
+        <Caret Line="568" Column="13" TopLine="564"/>
       </Position20>
       <Position21>
-        <Filename Value="espluaproperties.pas"/>
-        <Caret Line="23" Column="34" TopLine="7"/>
+        <Filename Value="espluaaction.pas"/>
+        <Caret Line="73" Column="25" TopLine="68"/>
       </Position21>
       <Position22>
-        <Filename Value="espluaproperties.pas"/>
-        <Caret Line="64" Column="37" TopLine="44"/>
+        <Filename Value="espluaaction.pas"/>
+        <Caret Line="391" TopLine="384"/>
       </Position22>
       <Position23>
         <Filename Value="espluaaction.pas"/>
-        <Caret Line="440" Column="22" TopLine="419"/>
+        <Caret Line="457" TopLine="450"/>
       </Position23>
       <Position24>
         <Filename Value="espluaaction.pas"/>
-        <Caret Line="63" Column="25" TopLine="47"/>
+        <Caret Line="458" TopLine="450"/>
       </Position24>
       <Position25>
         <Filename Value="espluaaction.pas"/>
-        <Caret Line="439" Column="28" TopLine="421"/>
+        <Caret Line="459" TopLine="450"/>
       </Position25>
       <Position26>
         <Filename Value="espluaaction.pas"/>
-        <Caret Line="474" Column="17" TopLine="455"/>
+        <Caret Line="460" TopLine="451"/>
       </Position26>
       <Position27>
         <Filename Value="espluaaction.pas"/>
-        <Caret Line="64" Column="21" TopLine="48"/>
+        <Caret Line="391" TopLine="386"/>
       </Position27>
       <Position28>
         <Filename Value="espluaaction.pas"/>
-        <Caret Line="65" Column="21" TopLine="48"/>
+        <Caret Line="392" TopLine="386"/>
       </Position28>
-      <Position29>
-        <Filename Value="espluaaction.pas"/>
-        <Caret Line="66" Column="21" TopLine="48"/>
-      </Position29>
-      <Position30>
-        <Filename Value="espluaaction.pas"/>
-        <Caret Line="67" Column="21" TopLine="48"/>
-      </Position30>
     </JumpHistory>
   </ProjectSession>
-  <EditorMacros Count="0"/>
 </CONFIG>

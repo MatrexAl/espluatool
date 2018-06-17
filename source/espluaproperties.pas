@@ -16,6 +16,7 @@ type
     { private declarations }
   public
     { public declarations }
+    function getLabGetVariables: string;
     function getLabFileContent: string;
     function getLabOk: string;
     function getLabTimeout: string;
@@ -50,6 +51,11 @@ implementation
 function TESPLuaProperties.getLabOk: string;
 begin
   Result := 'ОК';
+end;
+
+function TESPLuaProperties.getLabGetVariables: string;
+begin
+  Result := 'Получаю переменные';
 end;
 
 

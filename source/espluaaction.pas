@@ -27,26 +27,31 @@ type
     ComPort: TComPort;
     fReadStrMemo: tmemo;
     fReadStr: string;
-    fForm: TForm;
     fESPProperties: tESPLUAProperties;
     fESPLog: tESPLUALog;
     fNowStr: string;
+    fTermStr: string;
     ln: integer;
     function CalcTimeOut(const v_line: string; const v_def: integer): integer;
     procedure ClearFreeLineInReasStr;
-    procedure ClearLastFreeLineInStrings(v_dat: TStrings);overload;
-    procedure ClearLastFreeLineInStrings(var v_dat: string);overload;
+    procedure ClearLastFreeLineInStrings(v_dat: TStrings); overload;
+    procedure ClearLastFreeLineInStrings(var v_dat: string); overload;
+    procedure ClearTerminal;
     function compareline_2(const v_line, v_str: string): boolean;
     function CutResultLine(const v_script: string): rResult;
+    procedure DeleteLinteInStrings(var v_dat: string; const v_pos: integer);
     function ExecuteLuaScript(const v_script: string; const v_timeout: longword; const v_lab: string): rResult; overload;
     function ExecuteLuaScript(const v_script: TStrings; const v_timeout: longword; const v_lab: string): rResult; overload;
     function ExecuteLuaStr(const v_script: string): rResult;
     function getNowStr: string;
+    function getTermStr: string;
     function isNormalStr(const str: string): boolean;
     procedure ClearResult(var v_res: rResult);
     function isWriteScript(const v_line: string): boolean;
+    function NormalizePacked(const v_s: string): string;
     function NormalizeStr(const v_str: string): string;
     procedure OnPacket(Sender: TObject; const Str: string);
+    procedure RefreshTerminal;
     procedure SaveString(const v_fn: string; v_str: string);
     function WaitLineEnd(const v_timeout: longword): rResult;
     function WaitLine(const v_line: string; const v_timeout: longword; const v_pos: integer = -1): rResult;
@@ -60,13 +65,17 @@ type
     { public declarations }
     ProgressBar: TProgressBar;
     ProgressLabel: TLabel;
+    Terminal: TMemo;
     function compareFile(const v_filename: string; const v_dat: string): rResult;
     function getFile(const v_filename: string; var v_res: string): rResult; overload;
     function getFile(const v_filename: string; v_res: TStrings): rResult; overload;
+    function getVariable(var v_res: string): rResult; overload;
+    function getVariable(v_res: TStrings): rResult; overload;
     function getFileList(var v_res: string): rResult; overload;
     function getFileList(v_res: TStrings): rResult; overload;
     function writeFile(const v_filename: string; const v_data: string; const v_compare: boolean): rResult;
-    function writeFileAndCompile(const v_filename: string; const v_data: string; const v_compare: boolean): rResult;
+    function writeFileAndDoFile(const v_filename: string; const v_data: string; const v_compare: boolean): rResult;
+    function doFile(const v_filename: string): rResult;
     constructor Create(AOwner: TComponent; const v_port: string; const v_bitrate: integer);
     destructor Destroy; override;
   end;
@@ -74,6 +83,25 @@ type
 implementation
 
 { TESPLuaAction }
+
+
+procedure TESPLuaAction.ClearTerminal;
+begin
+  fTermStr := '';
+  if Terminal <> nil then
+    terminal.Clear;
+end;
+
+procedure TESPLuaAction.RefreshTerminal;
+begin
+  if Terminal <> nil then
+  begin
+    //Terminal.lines.Add(fNowStr);
+    Terminal.Lines.Text := getTermStr;
+    //Terminal.Refresh;
+    Application.ProcessMessages;
+  end;
+end;
 
 procedure TESPLuaAction.ClearResult(var v_res: rResult);
 begin
@@ -86,15 +114,35 @@ begin
   Result := True;
 end;
 
+function TESPLuaAction.NormalizePacked(const v_s: string): string;
+var
+  r: integer;
+  s: string;
+begin
+  Result := '';
+  if v_s <> '' then
+  begin
+    for r := 1 to length(v_s) do
+    begin
+      s := v_s[r];
+      if (s >= ' ') or (s = #10) or (s = #13) then
+        Result := Result + s;
+    end;
+  end;
+end;
+
 procedure TESPLuaAction.OnPacket(Sender: TObject; const Str: string);
 var
-  t: TStringList;
+  s: string;
 begin
   if isNormalStr(str) then
   begin
-    fReadStrMemo.Lines.Text := fReadStrMemo.Lines.Text + str;
-    fReadStr := fReadStr + str;
+    s := NormalizePacked(str);
+    fReadStrMemo.Lines.Text := fReadStrMemo.Lines.Text + s;
+    fReadStr := fReadStr + s;
+    fTermStr := fTermStr + s;
     fNowStr := str;
+    RefreshTerminal;
   end;
 end;
 
@@ -112,6 +160,11 @@ end;
 function TESPLuaAction.getNowStr: string;
 begin
   Result := fNowStr;
+end;
+
+function TESPLuaAction.getTermStr: string;
+begin
+  Result := fTermStr;
 end;
 
 function TESPLuaAction.compareline_2(const v_line, v_str: string): boolean;
@@ -233,9 +286,9 @@ begin
     e := length(s) - p - 4 + 1;
   s := copy(s, p, e);
 
-  fReadStr:=s;
+  fReadStr := s;
   ClearLastFreeLineInStrings(fReadStr);
-  fReadStrMemo.Text:=fReadStr;
+  fReadStrMemo.Text := fReadStr;
 
 end;
 
@@ -244,6 +297,8 @@ begin
   ClearResult(Result);
   comport.WriteStr(v_script);
   fESPLog.Add(v_script);
+  fTermStr := fTermStr + v_script;
+  RefreshTerminal;
 end;
 
 function TESPLuaAction.ExecuteLuaScript(const v_script: string; const v_timeout: longword; const v_lab: string): rResult;
@@ -299,6 +354,50 @@ begin
   Close;
 end;
 
+
+function TESPLuaAction.doFile(const v_filename: string): rResult;
+begin
+  fESPLog.Clear;
+  Result := ExecuteLuaScript('dofile("' + v_filename + '");', fESPProperties.getWaitResultDelayCompile, v_filename + ': ' + v_filename + ': ' + fESPProperties.getLabCompile);
+end;
+
+function TESPLuaAction.getVariable(v_res: TStrings): rResult;
+var
+  s: string;
+begin
+  Result := getVariable(s);
+  v_res.Text := s;
+end;
+
+function TESPLuaAction.getVariable(var v_res: string): rResult;
+var
+  cmd: TStringList;
+begin
+  fESPLog.Clear;
+  v_res := '';
+  cmd := TStringList.Create;
+  cmd.add('do');
+  cmd.add('print("=========== _G table: ===========")');
+  cmd.add('table.foreach(_G, print)');
+  cmd.add('print("===== package.loaded table: =====")');
+  cmd.add('table.foreach(_G.package.loaded, print)');
+  cmd.add('print("=================================")');
+  cmd.add('end');
+  Result := ExecuteLuaScript(cmd, fESPProperties.getWaitResultDelay, fESPProperties.getLabGetVariables);
+  if Result.RES = 0 then
+  begin
+    // ClearFreeLineInReasStr;
+    ClearLastFreeLineInStrings(fReadStr);
+    DeleteLinteInStrings(fReadStr, 0);
+    fReadStrMemo.Text := fReadStr;
+
+    v_res := getReadStr;
+  end;
+end;
+
+
+
+
 function TESPLuaAction.getFile(const v_filename: string; var v_res: string): rResult;
 var
   cmd: string;
@@ -311,7 +410,7 @@ begin
   begin
     // ClearFreeLineInReasStr;
     ClearLastFreeLineInStrings(fReadStr);
-    fReadStrMemo.Text:=fReadStr;
+    fReadStrMemo.Text := fReadStr;
     v_res := getReadStr;
   end;
 end;
@@ -339,6 +438,8 @@ begin
   end;
 end;
 
+
+
 procedure TESPLuaAction.ClearLastFreeLineInStrings(var v_dat: string);
 var
   t: TStringList;
@@ -346,6 +447,17 @@ begin
   t := TStringList.Create;
   t.Text := v_dat;
   ClearLastFreeLineInStrings(t);
+  v_dat := t.Text;
+  FreeAndNil(t);
+end;
+
+procedure TESPLuaAction.DeleteLinteInStrings(var v_dat: string; const v_pos: integer);
+var
+  t: TStringList;
+begin
+  t := TStringList.Create;
+  t.Text := v_dat;
+    t.Delete(v_pos);
   v_dat := t.Text;
   FreeAndNil(t);
 end;
@@ -390,12 +502,11 @@ begin
   v_res.Text := s;
 end;
 
-function TESPLuaAction.writeFileAndCompile(const v_filename: string; const v_data: string; const v_compare: boolean): rResult;
+function TESPLuaAction.writeFileAndDoFile(const v_filename: string; const v_data: string; const v_compare: boolean): rResult;
 begin
   fESPLog.Clear;
   Result := writeFileAction(v_filename, v_data, True, v_compare);
 end;
-
 
 function TESPLuaAction.writeFile(const v_filename: string; const v_data: string; const v_compare: boolean): rResult;
 begin
@@ -403,7 +514,7 @@ begin
   Result := writeFileAction(v_filename, v_data, False, v_compare);
 end;
 
-function TESPLuaAction.writeFileAction(const v_filename: string; const v_data: string; const v_compile: boolean; const v_compare: boolean): rResult;
+function TESPLuaAction.writeFileAction(const v_filename: string; const v_data: string; const v_compile, v_compare: boolean): rResult;
 var
   t: TStringList;
   i: TStringList;
@@ -538,6 +649,8 @@ begin
   ProgressLabel := nil;
   fESPLog := tESPLUALog.Create;
   fNowStr := '';
+  Terminal := nil;
+  ClearTerminal;
 end;
 
 destructor TESPLuaAction.Destroy;

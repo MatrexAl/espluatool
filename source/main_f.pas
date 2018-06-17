@@ -24,20 +24,26 @@ type
 
     fESPProperties: tespluaproperties;
     function ConnectStr(const s, s1, s2: string): string;
+    function doFile(v_fn: string; v_p: string; v_b: integer): rResult;
     function getAllFile(v_fn: string; v_p: string; v_b: integer): rResult;
     function GetBitrate: integer;
     function GetCompare: boolean;
+    function getDofile: string;
     function getFile(v_fn: string; v_p: string; v_b: integer; const v_node_fn: string): rResult;
     function GetFile: string;
     function GetListFolder: string;
     function GetParam(const v_param: string): string;
     function GetPort: string;
+    function getVariable(const v_fn: string; v_p: string; v_b: integer): rResult;
+    function GetVariableFile: string;
     function GetWriteFileName: string;
     function isBasicParam: boolean;
+    function isDoFile: boolean;
     function isGetAllFileContent: boolean;
     function isGetFileContent: boolean;
+    function isGetVariable: boolean;
     function isWrite: boolean;
-    function isWriteCompile: boolean;
+    function isWriteAndDofile: boolean;
     function ParamExists(const v_param: string): boolean;
     procedure RefreshCaption;
     procedure ShowResult(const v_res: rResult);
@@ -105,9 +111,9 @@ begin
   Result := isBasicParam and ParamExists('-w');
 end;
 
-function TForm1.isWriteCompile: boolean;
+function TForm1.isWriteAndDofile: boolean;
 begin
-  Result := isBasicParam and ParamExists('-wc');
+  Result := isBasicParam and ParamExists('-wd');
 end;
 
 function TForm1.isGetAllFileContent: boolean;
@@ -120,6 +126,16 @@ begin
   Result := isBasicParam and ParamExists('-g') and ParamExists('-f');
 end;
 
+
+function TForm1.isGetVariable: boolean;
+begin
+  Result := isBasicParam and ParamExists('-v');
+end;
+
+function TForm1.isDoFile: boolean;
+begin
+  Result := isBasicParam and ParamExists('-d');
+end;
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
@@ -143,11 +159,15 @@ end;
 
 function TForm1.ConnectStr(const s, s1, s2: string): string;
 begin
-  result:='';
-  if s<>'' then result:=result+s+', ';
-  if s1<>'' then result:=result+s1+', ';
-  if s2<>'' then result:=result+s2+', ';
-  if result<>'' then setlength(result, length(result)-2);
+  Result := '';
+  if s <> '' then
+    Result := Result + s + ', ';
+  if s1 <> '' then
+    Result := Result + s1 + ', ';
+  if s2 <> '' then
+    Result := Result + s2 + ', ';
+  if Result <> '' then
+    setlength(Result, length(Result) - 2);
 end;
 
 procedure TForm1.RefreshCaption;
@@ -161,14 +181,17 @@ begin
   begin
     Caption := Caption + ' - ' + ConnectStr(fESPProperties.getLabWriteFile, s, '');
   end;
-  if isWriteCompile then
+  if isWriteAndDofile then
   begin
     Caption := Caption + ' - ' + ConnectStr(fESPProperties.getLabWriteFile, s, fESPProperties.getLabCompile);
   end;
   if isGetAllFileContent then
-    Caption := Caption + ' - ' + ConnectStr(fESPProperties.getLabAllFileContent, '','');
+    Caption := Caption + ' - ' + ConnectStr(fESPProperties.getLabAllFileContent, '', '');
   if isGetFileContent then
-    Caption := Caption + ' - ' + ConnectStr(fESPProperties.getLabFileContent, '','');
+    Caption := Caption + ' - ' + ConnectStr(fESPProperties.getLabFileContent, '', '');
+  if isGetVariable then
+    Caption := Caption + ' - ' + ConnectStr(fESPProperties.getLabGetVariables, '', '');
+
 end;
 
 
@@ -186,7 +209,7 @@ begin
     espaction.ProgressBar := Progressbar1;
     espaction.ProgressLabel := label2;
     if v_compile then
-      Result := espaction.writeFileAndCompile(extractfilename(v_fn), t.Text, v_compare)
+      Result := espaction.writeFileAndDoFile(extractfilename(v_fn), t.Text, v_compare)
     else
       Result := espaction.WriteFile(extractfilename(v_fn), t.Text, v_compare);
 
@@ -199,7 +222,17 @@ begin
   end;
 end;
 
-
+function TForm1.doFile(v_fn: string; v_p: string; v_b: integer): rResult;
+var
+  espaction: tespluaaction;
+begin
+  v_fn := extractfilename(v_fn);
+  espaction := tespluaaction.Create(self, v_p, v_b);
+  espaction.ProgressBar := Progressbar1;
+  espaction.ProgressLabel := label2;
+  Result := espaction.doFile(v_fn);
+  FreeAndNil(espaction);
+end;
 
 function TForm1.getFile(v_fn: string; v_p: string; v_b: integer; const v_node_fn: string): rResult;
 var
@@ -216,6 +249,23 @@ begin
   FreeAndNil(sc);
   FreeAndNil(espaction);
 end;
+
+function TForm1.getVariable(const v_fn: string; v_p: string; v_b: integer): rResult;
+var
+  espaction: tespluaaction;
+  sc: TStringList;
+begin
+  sc := TStringList.Create;
+  espaction := tespluaaction.Create(self, v_p, v_b);
+  espaction.ProgressBar := Progressbar1;
+  espaction.ProgressLabel := label2;
+  Result := espaction.getVariable(sc);
+  sc.SaveToFile(v_fn);
+  FreeAndNil(sc);
+  FreeAndNil(espaction);
+end;
+
+
 
 function TForm1.getAllFile(v_fn: string; v_p: string; v_b: integer): rResult;
 var
@@ -270,7 +320,12 @@ function TForm1.GetWriteFileName: string;
 begin
   Result := getparam('-w');
   if Result = '' then
-    Result := getparam('-wc');
+    Result := getparam('-wd');
+end;
+
+function TForm1.getDofile: string;
+begin
+  Result := extractfilename(getparam('-d'));
 end;
 
 function TForm1.GetListFolder: string;
@@ -278,6 +333,11 @@ begin
   Result := getparam('-ga');
   if Result = '' then
     Result := getparam('-g');
+end;
+
+function TForm1.GetVariableFile: string;
+begin
+  Result := getparam('-v');
 end;
 
 function TForm1.GetFile: string;
@@ -302,7 +362,7 @@ begin
   if isWrite then
     r := WriteFileAction(GetWriteFileName, GetPort, GetBitrate, False, GetCompare)
   else
-  if isWriteCompile then
+  if isWriteAndDofile then
     r := WriteFileAction(GetWriteFileName, GetPort, GetBitrate, True, GetCompare)
   else
   if isGetAllFileContent then
@@ -311,6 +371,12 @@ begin
   if isGetFileContent then
     r := GetFile(GetListFolder, GetPort, GetBitrate, GetFile)
   else
+  if isDofile then
+    r := dofile(getDofile, GetPort, GetBitrate)
+  else
+  if isGetVariable then
+    r := getvariable(getVariableFile, GetPort, GetBitrate)
+  else
   begin
     r.MSG := fESPProperties.getLabCmdError;
     r.RES := 1;
@@ -318,6 +384,7 @@ begin
 
   ShowResult(r);
   ExitCode := r.RES;
+
   Close;
 
 end;
