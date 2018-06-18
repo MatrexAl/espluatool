@@ -178,20 +178,15 @@ begin
   if GetCompare then
     s := fESPProperties.getLabCompare;
   if isWrite then
-  begin
     Caption := Caption + ' - ' + ConnectStr(fESPProperties.getLabWriteFile, s, '');
-  end;
   if isWriteAndDofile then
-  begin
     Caption := Caption + ' - ' + ConnectStr(fESPProperties.getLabWriteFile, s, fESPProperties.getLabCompile);
-  end;
   if isGetAllFileContent then
     Caption := Caption + ' - ' + ConnectStr(fESPProperties.getLabAllFileContent, '', '');
   if isGetFileContent then
     Caption := Caption + ' - ' + ConnectStr(fESPProperties.getLabFileContent, '', '');
   if isGetVariable then
     Caption := Caption + ' - ' + ConnectStr(fESPProperties.getLabGetVariables, '', '');
-
 end;
 
 

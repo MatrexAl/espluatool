@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
   <ProjectOptions>
-    <Version Value="10"/>
+    <Version Value="9"/>
     <PathDelim Value="\"/>
     <General>
       <SessionStorage Value="InProjectDir"/>
@@ -45,10 +45,12 @@
         <ComponentName Value="Form1"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+        <UnitName Value="main_f"/>
       </Unit1>
       <Unit2>
         <Filename Value="espluaaction.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="espluaaction"/>
       </Unit2>
       <Unit3>
         <Filename Value="espluaproperties.pas"/>
@@ -87,6 +89,9 @@
         </Win32>
       </Options>
     </Linking>
+    <Other>
+      <CompilerPath Value="$(CompPath)"/>
+    </Other>
   </CompilerOptions>
   <Debugging>
     <Exceptions Count="5">
